@@ -25,7 +25,7 @@ cd poetzy
 ### 2. Install dependencies
 
 ```bash
-npm install
+bun install
 ```
 
 ### 4. Build the app (locally)
