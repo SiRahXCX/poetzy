@@ -1,24 +1,12 @@
-import { useEffect, useState } from 'react'
-import { View, Pressable, Text, ScrollView } from 'react-native'
+import { View, Pressable, ScrollView } from 'react-native'
 import { router } from 'expo-router'
-import { listNotes } from '@/services/NotesManager'
-import LoaderAnimation from '@/components/LoaderAnimation'
 import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { AppText } from '@/components/AppText'
+import { useNotes } from '@/context/NotesContext'
 
 export default function IndexScreen() {
-  const [notes, setNotes] = useState<string[]>([])
-  const [screenInitialized, setScreenInitialized] = useState<boolean>(false)
-
-  useEffect(() => {
-    const initializeScreen = async () => {
-      const existingNotes = await listNotes()
-      setNotes(existingNotes)
-      setScreenInitialized(true)
-    }
-
-    initializeScreen()
-  }, [])
+  const { notes, deleteNoteByTitle } = useNotes()
 
   return (
     <View className="justify-center flex-1 bg-white">
@@ -26,27 +14,28 @@ export default function IndexScreen() {
         <Pressable onPress={() => null}>
           <Ionicons name="settings-outline" size={24} color="black" /> 
         </Pressable>
-        <Text>
+        <AppText className="bg-amber-200" size="heading" bold>
           Poetzy
-        </Text>
+        </AppText>
         <Pressable onPress={() => router.push('/note')}>
           <Feather name="feather" size={24} color="black" />
         </Pressable>
       </View>
 
-      { 
-        screenInitialized ? 
-        (
-          <ScrollView contentContainerClassName="flex-row flex-wrap flex-1 p-4 justify-between items-center bg-cyan-200">
-            {notes.map((note, index) => (
-              <Pressable className="w-[150px] h-[200px] justify-center items-center rounded-md bg-lime-200">
-                <Text key={index}>{note}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        ) : 
-        <LoaderAnimation />
-      }
+      <ScrollView contentContainerClassName="flex-row flex-wrap flex-1 p-4 justify-between items-center bg-cyan-200">
+        {notes.map((note, index) => (
+          <Pressable 
+            key={index} 
+            className="w-[160px] h-[200px] mb-2 justify-center items-center rounded-lg bg-lime-200" 
+            onPress={() => router.push({pathname: '/note', params: { title: note.title }})}
+          >
+            <Pressable className="absolute right-3 bottom-3" onPress={() => deleteNoteByTitle(note.title)}>
+              <Feather name="trash-2" size={20} color="red" />
+            </Pressable>
+            <AppText>{note.title}</AppText>
+          </Pressable>
+        ))}
+      </ScrollView>
     </View>
   );
 }
