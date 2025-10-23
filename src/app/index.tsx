@@ -6,12 +6,12 @@ import { AppText } from '@/components/AppText'
 import { useNotes } from '@/context/NotesContext'
 
 export default function IndexScreen() {
-  const { notes, deleteNoteByTitle } = useNotes()
+  const { notes, deleteNoteByTitle,  deleteAllNotes} = useNotes()
 
   return (
     <View className="justify-center flex-1 bg-white">
       <View className="flex-row flex-nowrap justify-between items-center h-[45px] px-3 bg-red-200">
-        <Pressable onPress={() => null}>
+        <Pressable onPress={() => deleteAllNotes()}>
           <Ionicons name="settings-outline" size={24} color="black" /> 
         </Pressable>
         <AppText className="bg-amber-200" size="heading" bold>

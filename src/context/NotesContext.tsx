@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import * as FileSystem from 'expo-file-system'
+import { remark } from 'remark'
 
 type Note = {
     title: string;
@@ -10,6 +11,7 @@ type NotesContextType = {
     notes: Note[];
     loadNoteByFilename: (filename: string) => Promise<string>;
     saveNote: (filename: string, content: string) => Promise<void>;
+    deleteAllNotes: () => Promise<void>;
     deleteNoteByTitle: (filename: string) => Promise<void>;
     deleteNoteByFilename: (filename: string) => Promise<void>;
 }
@@ -19,7 +21,7 @@ const NotesContext = createContext<NotesContextType | undefined>(undefined)
 export const NotesProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
     const [notes, setNotes] = useState<Note[]>([])
     const fileDir = FileSystem.documentDirectory + 'poetzy/'
-    const fileFormat = 'txt'
+    const fileFormat = 'md'
 
     const ensurePoetzyDirExists = async (): Promise<void> => {
         try {
@@ -39,7 +41,7 @@ export const NotesProvider: React.FC<{children: React.ReactNode}> = ({ children 
             const filenames = await FileSystem.readDirectoryAsync(fileDir)
             const notesArray = await Promise.all(filenames.map(async (filename: string) => {
                 const content = await FileSystem.readAsStringAsync(`${fileDir}${filename}`)
-                return { title: filename.replace('.txt', ''), content }
+                return { title: filename.replace(`.${fileFormat}`, ''), content }
             }))
 
             setNotes(notesArray)
@@ -77,6 +79,16 @@ export const NotesProvider: React.FC<{children: React.ReactNode}> = ({ children 
             await listNotes()
         } catch (e: any) {
             throw new Error(`error saving note\n->${e.message}`)
+        }
+    }
+
+    const deleteAllNotes = async () => {
+        try {
+            await ensurePoetzyDirExists()
+            const filenames = await FileSystem.readDirectoryAsync(fileDir)
+            filenames.forEach(async filename => await deleteNoteByFilename(filename))
+        } catch (e: any) {
+            throw new Error(`error deleting all notes\n->${e.message}`)
         }
     }
 
@@ -127,7 +139,7 @@ export const NotesProvider: React.FC<{children: React.ReactNode}> = ({ children 
     }, [])
 
     return (
-        <NotesContext.Provider value={{ notes, loadNoteByFilename, saveNote, deleteNoteByTitle, deleteNoteByFilename }}>
+        <NotesContext.Provider value={{ notes, loadNoteByFilename, saveNote, deleteAllNotes, deleteNoteByTitle, deleteNoteByFilename }}>
             {children}
         </NotesContext.Provider>
     )
