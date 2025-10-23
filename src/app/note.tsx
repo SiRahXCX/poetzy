@@ -26,7 +26,7 @@ export default function NoteScreen() {
     const routerGoBack = async () => {
         try {
             if (content.length) {
-                await saveNote(title || await stripMarkdown(content), content)
+                await saveNote(title || await stripMarkdown(content.slice(0, 24)), content)
             }
             
             if (canGoBack) {
