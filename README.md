@@ -50,6 +50,6 @@ Kindly refer to here - https://docs.expo.dev/build/setup/
 
 ---
 
-### ❤️ Built by Abanggi S. Momin
+### ❤️ Built by SiRah
 
 
